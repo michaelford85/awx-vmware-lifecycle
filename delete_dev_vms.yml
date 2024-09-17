@@ -4,26 +4,26 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Check if custom.config.yml exists
-      stat:
-        path: "custom.config.yml"
-      register: config_check
+    # - name: Check if custom.config.yml exists
+    #   stat:
+    #     path: "custom.config.yml"
+    #   register: config_check
 
-    - name: Include custom config if present
-      include_vars:
-        file: "custom.config.yml"
-      when: config_check.stat.exists
+    # - name: Include custom config if present
+    #   include_vars:
+    #     file: "custom.config.yml"
+    #   when: config_check.stat.exists
 
-    - name: Include default config if custom config is not present
-      include_vars:
-        file: "default.config.yml"
-      when: not config_check.stat.exists
+    # - name: Include default config if custom config is not present
+    #   include_vars:
+    #     file: "default.config.yml"
+    #   when: not config_check.stat.exists
 
     - name: Find VMs that match the prefix
       community.vmware.vmware_vm_info:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
+        hostname: "{{ lookup('ansible.builtin.env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('ansible.builtin.env', 'VMWARE_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'VMWARE_PASSWORD') }}"
         validate_certs: no
         folder: "/{{ vcenter_datacenter }}/vm/{{ vcenter_vm_folder }}"
       register: vms
@@ -42,9 +42,9 @@
 
     - name: Power off the matching VMs
       community.vmware.vmware_guest_powerstate:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
+        hostname: "{{ lookup('ansible.builtin.env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('ansible.builtin.env', 'VMWARE_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'VMWARE_PASSWORD') }}"
         validate_certs: no
         name: "{{ item.guest_name }}"
         state: powered-off
@@ -54,9 +54,9 @@
 
     - name: Delete the matching VMs
       community.vmware.vmware_guest:
-        hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
+        hostname: "{{ lookup('ansible.builtin.env', 'VMWARE_HOST') }}"
+        username: "{{ lookup('ansible.builtin.env', 'VMWARE_USER') }}"
+        password: "{{ lookup('ansible.builtin.env', 'VMWARE_PASSWORD') }}"
         validate_certs: no
         name: "{{ item.guest_name }}"
         state: absent
