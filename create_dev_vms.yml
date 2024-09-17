@@ -49,6 +49,7 @@
         networks:
           - name: "{{ vm_network }}"
             dvswitch_name: "{{ vm_switch }}"
+            connected: true
         hardware:
           memory_mb: "{{ vm_mem_mb }}"
           num_cpus: "{{ vm_cpus }}"
