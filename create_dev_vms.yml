@@ -4,20 +4,20 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Check if custom.config.yml exists
-      stat:
-        path: "custom.config.yml"
-      register: config_check
+    # - name: Check if custom.config.yml exists
+    #   stat:
+    #     path: "custom.config.yml"
+    #   register: config_check
 
-    - name: Include custom config if present
-      include_vars:
-        file: "custom.config.yml"
-      when: config_check.stat.exists
+    # - name: Include custom config if present
+    #   include_vars:
+    #     file: "custom.config.yml"
+    #   when: config_check.stat.exists
 
-    - name: Include default config if custom config is not present
-      include_vars:
-        file: "default.config.yml"
-      when: not config_check.stat.exists
+    # - name: Include default config if custom config is not present
+    #   include_vars:
+    #     file: "default.config.yml"
+    #   when: not config_check.stat.exists
 
     - name: Deploy VMs from template
       community.vmware.vmware_guest:
