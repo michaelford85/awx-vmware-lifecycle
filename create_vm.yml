@@ -1,0 +1,45 @@
+---
+- name: Create VM from template in vCenter
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Check if custom.config.yml exists
+      stat:
+        path: "custom.config.yml"
+      register: config_check
+
+    - name: Include custom config if present
+      include_vars:
+        file: "custom.config.yml"
+      when: config_check.stat.exists
+
+    - name: Include default config if custom config is not present
+      include_vars:
+        file: "default.config.yml"
+      when: not config_check.stat.exists
+
+    - name: Deploy VMs from template
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        datacenter: "{{ vcenter_datacenter }}"
+        cluster: "{{ vcenter_cluster }}"
+        folder: "{{ vcenter_vm_folder }}"
+        name: "{{ vm_name_prefix }}{{ item }}"  # Increment VM names
+        template: "{{ vm_template }}"
+        state: powered-on
+        disk:
+          - size_gb: "{{ vm_disk_gb }}"
+            type: thin
+            datastore: "{{ vm_datastore }}"
+        networks:
+          - name: "{{ vm_network }}"
+            dvswitch_name: "{{ vm_switch }}"
+        hardware:
+          memory_mb: "{{ vm_mem_mb }}"
+          num_cpus: "{{ vm_cpus }}"
+      loop: "{{ range(1, num_vms + 1) | list }}"  # Loop over the number of VMs
+      delegate_to: localhost

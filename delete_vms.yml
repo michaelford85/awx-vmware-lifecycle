@@ -1,0 +1,65 @@
+---
+- name: Power off and delete VMs in vCenter
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Check if custom.config.yml exists
+      stat:
+        path: "custom.config.yml"
+      register: config_check
+
+    - name: Include custom config if present
+      include_vars:
+        file: "custom.config.yml"
+      when: config_check.stat.exists
+
+    - name: Include default config if custom config is not present
+      include_vars:
+        file: "default.config.yml"
+      when: not config_check.stat.exists
+
+    - name: Find VMs that match the prefix
+      community.vmware.vmware_vm_info:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        folder: "/{{ vcenter_datacenter }}/vm/{{ vcenter_vm_folder }}"
+      register: vms
+
+    # - name: Debug the structure of the returned VMs
+    #   ansible.builtin.debug:
+    #     var: vms
+
+    - name: Filter VMs that start with the prefix
+      set_fact:
+        matched_vms: "{{ vms.virtual_machines | selectattr('guest_name', 'search', '^' + vm_name_prefix) | list }}"
+
+    # - name: Debug the structure of the returned VMs
+    #   ansible.builtin.debug:
+    #     var: matched_vms
+
+    - name: Power off the matching VMs
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        name: "{{ item.guest_name }}"
+        state: powered-off
+      loop: "{{ matched_vms }}"
+      when: matched_vms | length > 0
+      delegate_to: localhost
+
+    - name: Delete the matching VMs
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: no
+        name: "{{ item.guest_name }}"
+        state: absent
+      loop: "{{ matched_vms }}"
+      when: matched_vms | length > 0
+      delegate_to: localhost

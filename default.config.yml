@@ -1,0 +1,18 @@
+---
+num_vms: 2
+vm_name_prefix: "dev-rocky-9-"  # This name cannot change as the dynamic Ascender inventory depends on it
+# vm_name_prefix: "dev-rocky-8-"  # This name cannot change as the dynamic Ascender inventory depends on it
+vcenter_hostname: vcenter.localhost.com
+vcenter_username: "dummyuser@localhost.com"
+vcenter_password: "lDER23V1c-NC"
+vcenter_datacenter: DATACENTER
+vcenter_cluster: vcenter.localhost.com
+vcenter_vm_folder: Userfolder
+vm_name: testvm
+vm_template: Rocky9.4
+vm_network: Usernetwork
+vm_switch: DSwitch
+vm_datastore: ISO
+vm_disk_gb: 50
+vm_mem_mb: 4096
+vm_cpus: 4
