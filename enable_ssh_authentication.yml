@@ -1,0 +1,23 @@
+---
+- name: Enable SSH Authentication for Rocky Dev Servers
+  hosts: rocky_dev_servers
+  gather_facts: no
+  tasks:
+    
+    - name: Ensure that the ~/.ssh directory exists
+      ansible.builtin.file:
+        path: ~/.ssh
+        state: directory
+        mode: '0700'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      
+    - name: Add SSH private key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: ~/.ssh/authorized_keys
+        line: "{{ ssh_public_key }}"
+        create: yes
+        mode: '0600'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        state: present
