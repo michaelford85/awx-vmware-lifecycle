@@ -1,0 +1,12 @@
+---
+- name: Update all packages
+  hosts: rocky_dev_servers
+  gather_facts: true
+  become: yes
+    
+  tasks:
+    - name: Ensure all packages are up to date
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_cache: yes

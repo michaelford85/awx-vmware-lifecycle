@@ -48,7 +48,8 @@
         networks:
           - name: "{{ vm_network }}"
             dvswitch_name: "{{ vm_switch }}"
-            # connected: true
+            device_type: vmxnet3
+            connected: true
             start_connected: true
             type: dhcp
         hardware:
