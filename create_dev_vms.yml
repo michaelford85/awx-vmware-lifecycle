@@ -19,16 +19,15 @@
     #     file: "default.config.yml"
     #   when: not config_check.stat.exists
 
-    - name: Set vm_template based on vm_name_prefix
+    - name: Set vm_template to Rocky9.4 if vm_name_prefix == "dev-rocky-9-"
       ansible.builtin.set_fact:
-        vm_template: >
-          {% if vm_name_prefix == "dev-rocky-9-" %}
-            Rocky9.4
-          {% elif vm_name_prefix == "dev-rocky-8-" %}
-            Rocky8.10
-          {% else %}
-            default_template
-          {% endif %}
+        vm_template: "Rocky9.4"
+      when: vm_name_prefix == "dev-rocky-9-"
+
+    - name: Set vm_template to Rocky8.10 if vm_name_prefix == "dev-rocky-8-"
+      ansible.builtin.set_fact:
+        vm_template: "Rocky8.10"
+      when: vm_name_prefix == "dev-rocky-8-"
 
     - name: Deploy VMs from template
       community.vmware.vmware_guest:
